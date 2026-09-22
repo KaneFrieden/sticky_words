@@ -1,0 +1,29 @@
+# Python 3.12 required, since gensim has no install package for 3.13/3.14.
+# Versions are pinned exactly for maximum reproducibility.
+
+# data handling, preprocessing, I/O
+pandas==3.0.6
+pyarrow==25.0.1          # enables parquet (smaller than CSV)
+numpy==2.5.3
+scipy==1.18.1
+openpyxl==3.1.5
+
+# modeling
+statsmodels==0.15.0
+scikit-learn==1.9.1      # only used for cross-validation; no models used
+
+# lexical predictors
+gensim==4.4.0            # fastText vectors & nearest neighbours; reason for 3.12
+python-Levenshtein==0.27.5
+
+# machine translation
+transformers==5.17.0
+sentencepiece==0.2.2
+torch==2.14.0
+huggingface-hub==1.32.0
+
+# figures & notebooks
+matplotlib==3.11.2
+jupyterlab==4.6.3
+ipykernel==7.3.0
+nbconvert==7.17.1
