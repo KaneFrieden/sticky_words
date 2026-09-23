@@ -3,6 +3,8 @@
 Declares core invariants across predictor columns, block prefixes, directory
 structures, and data root access. At the end it prints a summary of passed checks and
 also fails fast (exit code 1) when encountering errors.
+
+author: Kane
 """
 
 from __future__ import annotations

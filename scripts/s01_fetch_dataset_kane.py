@@ -8,12 +8,12 @@ output: data/raw/settles.acl16.learning_traces.13m.csv.gz
 We neither modify the raw file nor commit it (379 MB). 
 All of our subsets are produced by code from it, to maintain reproducibility.
 
-For integrity, we look again at the publisher's own md5, taken live from the 
+For integrity, we look again at the publisher's own md5, taken live from the
 Dataverse API. This way we can detect a truncated or substituted download.
 
+author: Kane
 
-
-run: python scripts/s01_fetch_dataset.py
+run: python scripts/s01_fetch_dataset_kane.py
 """
 
 from __future__ import annotations
