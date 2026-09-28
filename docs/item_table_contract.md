@@ -1,6 +1,6 @@
 # Item-table contract between authors
 
-Makes handoff between the two halves of the project explicit and establishes convention. 
+Makes handoff between the two halves of the project explicit and establishes convention. Also replicates some information already supplied in the codebase comments, but kept as a centralized piece of doc.
 
 Changing a col name here is akin to a change to the interface. Both authors must agree first, then
 update this file and `src/config.py` in the same commit, to ensure uniformity and avoid divergence.
