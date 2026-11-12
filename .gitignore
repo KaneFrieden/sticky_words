@@ -13,6 +13,10 @@ models/
 env.sh
 .env
 
+# Local working drafts; reviewed documentation is committed separately
+notes/
+*.code-workspace
+
 # Python artifacts
 __pycache__/
 *.py[cod]
