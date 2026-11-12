@@ -1,9 +1,11 @@
 # Beyond Exposure: What Makes Words Stick?
 
-This repository is the clean rebuild of our Duolingo word-retention analysis.
+This repository is the clean rebuild of our Duolingo word-retention analysis. We
+lost sight of the project a bit in October during the start of the new semester
+so now we are just starting to get back into it. 
 The earlier full analysis remains available in the separate `project` repository
-for checking counts and results. The code in this repository is being rebuilt
-in small, reviewable stages.
+for checking counts and results. We are rewritting the scripts and code for the 
+project in small, more easily reviewable stages such that we don't go out of sync.
 
 ## Current stage
 
