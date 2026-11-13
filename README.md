@@ -2,15 +2,16 @@
 
 This repository is the clean rebuild of our Duolingo word-retention analysis. We
 lost sight of the project a bit in October during the start of the new semester
-so now we are just starting to get back into it. 
+so now we are just starting to get back into it.
 The earlier full analysis remains available in the separate `project` repository
-for checking counts and results. We are rewritting the scripts and code for the 
+for checking counts and results. We are rewritting the scripts and code for the
 project in small, more easily reviewable stages such that we don't go out of sync.
 
 ## Current stage
 
-`scripts/s00_verify_inputs.py` checks the raw dataset and the locations for
-new outputs. The analysis scripts have not yet been rewritten.
+`scripts/s00_verify_inputs_marie.py` checks the raw dataset and the locations for
+new outputs. `scripts/s01_subset_kane.py` selects the language group and produces
+the first descriptive summary. Later analysis scripts are still in progress.
 
 ## Data locations
 
@@ -24,8 +25,8 @@ raw-data directory. Choose a fresh output directory for this rebuild. When
 See `env.example.sh` for the
 variables. A machine-specific `env.sh` is ignored by Git.
 
-Run `.venv/bin/python scripts/s00_verify_inputs.py` after setting the variables.
+Run `.venv/bin/python scripts/s00_verify_inputs_marie.py` after setting the variables.
 The raw directory must contain the dataset and its `dataset_manifest.json`.
 The script verifies the raw file's size and MD5 against that local manifest
-without writing to the raw-data directory. Downloading the inputs and creating
-the manifest on a new machine are not yet implemented in this rebuild.
+without writing to the raw-data directory.
+Downloading the dataset is now handled by `scripts/download_dataset.py`, which also creates a local manifest.

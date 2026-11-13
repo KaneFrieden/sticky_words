@@ -1,8 +1,10 @@
-"""Configuration for the datsci project.
-This module defines the project root and data directories, and provides a function to
-require that the data root is valid. The data root can be configured via environment
-variables, and the module checks for the presence of a marker file to ensure that the
-data root is valid."""
+"""Configuration for the Data Science project.
+
+This module defines the project root, data directories, and language pair.
+Paths can be configured through environment variables. When an external data
+root is configured, require_data_root() checks that the directory and its
+marker file exist.
+"""
 
 from __future__ import annotations
 
@@ -27,6 +29,10 @@ DATA_RAW = configured_path("DATSCI_RAW_ROOT", DATA_ROOT / "raw")
 DATA_INTERMEDIATE = DATA_ROOT / "intermediate"
 DATA_PROCESSED = DATA_ROOT / "processed"
 DATA_ROOT_MARKER = ".datsci-data-root"
+
+# we are globally defining the learning and UI languages for the subset selection
+LEARNING_LANGUAGE = "en"
+UI_LANGUAGE = "es"
 
 
 def require_data_root() -> Path:
