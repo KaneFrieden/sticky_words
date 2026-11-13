@@ -39,6 +39,8 @@ def parse_lexeme(value: str) -> dict: # parse lexeme descriptions into their com
             "is_wildcard": "<*" in value, "is_prpers": False,
             "has_construction_tag": "<@" in value, "is_unparsed": True,
             "is_nonword_lemma": False, "has_no_regular_pos": False, # we don't know if the lemma is a valid word or if the pos is regular, so we set these to False
+            "n_grammatical_tags": None, "n_construction_tags": None,
+            "n_wildcard_tags": None,
         }
 
     surface = match.group("surface") # extract the surface form from the matched lexeme description
@@ -55,6 +57,10 @@ def parse_lexeme(value: str) -> dict: # parse lexeme descriptions into their com
         "is_unparsed": False,
         "is_nonword_lemma": WORD_PATTERN.fullmatch(lemma) is None, # check if the lemma is a valid word according to the WORD_PATTERN
         "has_no_regular_pos": tags[0].startswith("@"), # check if the part of speech tag is a construction tag, which is not a regular pos
+        # count the number of grammatical tags, construction tags, and wildcard tags in the lexeme description
+        "n_grammatical_tags": sum(not tag.startswith(("@", "*")) for tag in tags[1:]),
+        "n_construction_tags": sum(tag.startswith("@") for tag in tags),
+        "n_wildcard_tags": sum(tag.startswith("*") for tag in tags),
     }
 
 
@@ -82,6 +88,27 @@ def main() -> None:
     lexemes = pd.concat([lexemes, parsed], axis=1)
     counts = traces["lexeme_id"].value_counts()
     lexemes["n_events"] = lexemes["lexeme_id"].map(counts).astype("int64")
+    # we filter out the unparsed lexemes to focus on those that were successfully parsed for further analysis.
+    parsed_lexemes = lexemes.loc[~lexemes["is_unparsed"]]
+    pos_counts = ( # group the parsed lexemes by lemma and part of speech, and count each combination
+        parsed_lexemes.groupby(["lemma", "pos"], dropna=False)
+        .agg(lexemes=("lexeme_id", "size"), events=("n_events", "sum"))
+        .reset_index()
+    )
+    mixed_lemmas = pos_counts.groupby("lemma")["pos"].nunique()
+    mixed_lemmas = mixed_lemmas[mixed_lemmas > 1].index
+    mixed_pos = pos_counts[pos_counts["lemma"].isin(mixed_lemmas)]
+    mixed_examples = []
+    for lemma, group in mixed_pos.groupby("lemma"):
+        mixed_examples.append({
+            "lemma": lemma,
+            "events": int(group["events"].sum()),
+            "word_classes": [
+                {"tag": row.pos, "lexemes": int(row.lexemes), "events": int(row.events)}
+                for row in group.itertuples(index=False)
+            ],
+        })
+    mixed_examples.sort(key=lambda item: (-item["events"], item["lemma"]))
 
     report = { # report to summ the parsing results
         "n_events": len(traces),
@@ -97,6 +124,17 @@ def main() -> None:
             name: lexemes.loc[lexemes[name], "lexeme_string"].head(10).tolist()
             for name in ("is_wildcard", "is_prpers", "has_construction_tag",
                          "is_unparsed", "is_nonword_lemma", "has_no_regular_pos")
+        },
+        "tag_counts": { # count the number of lexemes and events for each type of tag (grammatical, construction, wildcard) in the parsed lexemes
+            name: {
+                "lexemes_with_any": int((parsed_lexemes[name] > 0).sum()),
+                "events_on_those_lexemes": int(parsed_lexemes.loc[parsed_lexemes[name] > 0, "n_events"].sum()),
+            }
+            for name in ("n_grammatical_tags", "n_construction_tags", "n_wildcard_tags")
+        },
+        "multiple_word_classes": {
+            "n_lemmas": len(mixed_lemmas),
+            "examples_by_event_count": mixed_examples[:20],
         },
     }
 
