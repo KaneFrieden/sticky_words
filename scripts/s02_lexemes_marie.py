@@ -25,6 +25,8 @@ LEXEME_PATTERN = re.compile(r"^(?P<surface>[^/]*)/(?P<lemma>[^<]*)(?P<tags>(?:<[
 # the format of the lexeme descriptions is like this: boys/boy<n><pl>, with tags describing 
 # the part of speech and other features. The regex captures the surface form, lemma, and tags separately.
 TAG_PATTERN = re.compile(r"<([^<>]+)>")
+WORD_PATTERN = re.compile(r"[A-Za-z][A-Za-z'-]*") # a simple pattern to identify valid word lemmas, which start with a letter 
+#and may contain letters, hyphens, or apostrophes.
 
 
 def parse_lexeme(value: str) -> dict: # parse lexeme descriptions into their components and identify special cases like 
@@ -36,6 +38,7 @@ def parse_lexeme(value: str) -> dict: # parse lexeme descriptions into their com
             "surface": None, "lemma": None, "pos": None, "tags": None,
             "is_wildcard": "<*" in value, "is_prpers": False,
             "has_construction_tag": "<@" in value, "is_unparsed": True,
+            "is_nonword_lemma": False, "has_no_regular_pos": False, # we don't know if the lemma is a valid word or if the pos is regular, so we set these to False
         }
 
     surface = match.group("surface") # extract the surface form from the matched lexeme description
@@ -50,6 +53,8 @@ def parse_lexeme(value: str) -> dict: # parse lexeme descriptions into their com
         "is_prpers": lemma == "prpers",
         "has_construction_tag": any(tag.startswith("@") for tag in tags),
         "is_unparsed": False,
+        "is_nonword_lemma": WORD_PATTERN.fullmatch(lemma) is None, # check if the lemma is a valid word according to the WORD_PATTERN
+        "has_no_regular_pos": tags[0].startswith("@"), # check if the part of speech tag is a construction tag, which is not a regular pos
     }
 
 
@@ -85,9 +90,14 @@ def main() -> None:
         "ids_per_description_max": int(lexemes.groupby("lexeme_string")["lexeme_id"].nunique().max()),
         "marked": {
             name: {"lexemes": int(lexemes[name].sum()), "events": int(lexemes.loc[lexemes[name], "n_events"].sum())}
-            for name in ("is_wildcard", "is_prpers", "has_construction_tag", "is_unparsed")
+            for name in ("is_wildcard", "is_prpers", "has_construction_tag",
+                         "is_unparsed", "is_nonword_lemma", "has_no_regular_pos")
         },
-        "unparsed_examples": lexemes.loc[lexemes["is_unparsed"], "lexeme_string"].head(20).tolist(),
+        "examples": {
+            name: lexemes.loc[lexemes[name], "lexeme_string"].head(10).tolist()
+            for name in ("is_wildcard", "is_prpers", "has_construction_tag",
+                         "is_unparsed", "is_nonword_lemma", "has_no_regular_pos")
+        },
     }
 
     with tempfile.TemporaryDirectory(prefix="s02_", dir=config.DATA_INTERMEDIATE) as temp:
